@@ -19,6 +19,7 @@ lst = const list
 expr =
     | const
     | var
+    | (expr)
     | expr op expr
     | expr ? expr : expr
     | max(expr, expr) | min(expr, expr)
