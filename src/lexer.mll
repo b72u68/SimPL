@@ -10,7 +10,7 @@ let ws = [' ' '\t' '\n']
 
 rule token =  parse
     | ws { token lexbuf }
-    | digit+ as n { INT (int_of_string n) }
+    | num as n { INT (int_of_string n) }
     | "true"  { TRUE }
     | "false" { FALSE }
 
@@ -30,11 +30,16 @@ rule token =  parse
 
     | "(" { LPAREN }
     | ")" { RPAREN }
+    | "[" { LBRACKET }
+    | "]" { RBRACKET }
     | "," { COMMA }
 
     | "if" { IF }
     | "then" { THEN }
     | "else" { ELSE }
+
+    | "nth" { NTH }
+    | "size" { SIZE }
 
     | var as s { VAR s }
 

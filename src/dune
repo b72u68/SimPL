@@ -1,6 +1,7 @@
 (library
-  (name Parse))
+  (name ParsePL))
 
-(ocamlyacc parser)
+(menhir
+  (modules parser))
 
 (ocamllex lexer)
