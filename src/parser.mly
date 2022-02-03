@@ -33,7 +33,6 @@ expr:
     | MAX LPAREN expr COMMA expr RPAREN { Max ($3, $5) }
     | MIN LPAREN expr COMMA expr RPAREN { Min ($3, $5) }
     | NTH LPAREN lst COMMA expr RPAREN  { Nth ($3, $5) }
-    | lst LBRACKET expr RBRACKET        { Nth ($1, $3) }
     | SIZE LPAREN lst RPAREN            { Size  $3 }
 ;
 
@@ -58,5 +57,5 @@ const:
 ;
 
 lst:
-    | LBRACKET; separated_list(COMMA, const); RBRACKET    { List $2 }
+    | LBRACKET separated_list(COMMA, const) RBRACKET    { $2 }
 ;

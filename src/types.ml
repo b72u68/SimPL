@@ -1,7 +1,7 @@
 type op = Plus | Minus | Times | Div | Lt | Gt | Le | Ge | Eq | And | Or
 type var = string
 type const = Int of int | True | False
-type lst = List of const list
+type lst = const list
 type exp =
     | Const of const
     | Var of var
