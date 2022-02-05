@@ -1,5 +1,5 @@
 (library
-  (name ParsePL))
+  (name SimpPL))
 
 (menhir
   (modules parser))

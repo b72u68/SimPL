@@ -1,5 +1,5 @@
 %{
-    open Types
+    open Ast
 %}
 
 %token <int> INT
@@ -17,7 +17,7 @@
 %token IF THEN ELSE
 %token EOF
 
-%start <Types.exp> prog
+%start <Ast.exp> prog
 
 %%
 prog:

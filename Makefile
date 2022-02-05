@@ -1,6 +1,8 @@
-all: src/main.ml src/types.ml src/parser.mly src/lexer.mll src/dune
+all: src/main.ml src/ast.ml src/parser.mly src/lexer.mll src/dune
 	dune build
+
+run: src
 	dune utop src
 
-clean: _build/
+clean: _build
 	dune clean
