@@ -3,5 +3,3 @@ let parse s =
     let ast = Parser.prog Lexer.token lexbuf in
     ast
 ;;
-
-let interp _ = ();;

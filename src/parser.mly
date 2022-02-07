@@ -7,33 +7,45 @@
 %token TRUE FALSE
 %token PLUS MINUS TIMES DIV
 %token AND OR
-%token LT LE GT GE EQ
+%token LT LE GT GE EQ EQUAL
 %token LPAREN RPAREN
+%token SQLBRACKET SQRBRACKET
 %token LBRACKET RBRACKET
-%token COMMA
 %token MAX MIN
 %token NTH
 %token SIZE
 %token IF THEN ELSE
+%token WHILE
+%token QUESTION COLON COMMA SEMICOLON
+%token SKIP
 %token EOF
 
-%start <Ast.exp> prog
+%start <Ast.stmt> prog
 
 %%
 prog:
-    | expr EOF      { $1 }
+    | stmt EOF      { $1 }
 ;
 
 expr:
-    | const                         { Const $1 }
-    | VAR                           { Var $1 }
-    | expr op expr                  { Op ($2, $1, $3) }
-    | IF expr THEN expr ELSE expr   { If ($2, $4, $6) }
-    | LPAREN expr RPAREN            { $2 }
-    | MAX LPAREN expr COMMA expr RPAREN { Max ($3, $5) }
-    | MIN LPAREN expr COMMA expr RPAREN { Min ($3, $5) }
-    | NTH LPAREN lst COMMA expr RPAREN  { Nth ($3, $5) }
+    | const                             { Const $1 }
+    | VAR                               { Var $1 }
+    | expr op expr                      { Op ($2, $1, $3) }
+    | expr QUESTION expr COLON expr     { IfExp ($1, $3, $5) }
+    | LPAREN expr RPAREN                { $2 }
+    | MAX LPAREN expr COMMA expr RPAREN { Op (Max, $3, $5) }
+    | MIN LPAREN expr COMMA expr RPAREN { Op (Min, $3, $5) }
+    | VAR SQLBRACKET expr SQRBRACKET    { Nth ($1, $3) }
     | SIZE LPAREN lst RPAREN            { Size  $3 }
+;
+
+stmt:
+    | VAR EQUAL expr                                { Let ($1, $3) }
+    | VAR SQLBRACKET expr SQRBRACKET EQUAL expr     { LetNth ($1, $3, $6) }
+    | IF expr THEN stmt ELSE stmt                   { If ($2, $4, $6) }
+    | WHILE expr LBRACKET stmt RBRACKET             { While ($2, $4) }
+    | stmt SEMICOLON stmt                           { Seq ($1, $3) }
+    | SKIP                                          { Skip }
 ;
 
 op:
@@ -57,5 +69,5 @@ const:
 ;
 
 lst:
-    | LBRACKET separated_list(COMMA, const) RBRACKET    { $2 }
+    | SQLBRACKET separated_list(COMMA, const) SQRBRACKET    { $2 }
 ;
