@@ -15,14 +15,10 @@
 %token SIZE
 %token IF THEN ELSE
 %token WHILE
-%token QUESTION COLON
+%token QUESTION COLON SEMICOLON
 %token COMMA
 %token SKIP
 %token EOF
-
-%left LT LE GT GE NEQ EQ
-%left TIMES DIV
-%left QUESTION COLON
 
 %start <Ast.stmt> prog
 
@@ -49,9 +45,14 @@ stmt:
     | VAR LBRACKET expr RBRACKET EQUAL expr         { LetNth ($1, $3, $6) }
     | IF expr THEN stmt ELSE stmt                   { If ($2, $4, $6) }
     | WHILE expr LBRACE stmt RBRACE                 { While ($2, $4) }
+    | stmts                                         { Seq $1 }
     | SKIP                                          { Skip }
 ;
 
+stmts:
+    | stmt SEMICOLON stmts  { $1::$3 }
+    |                       { [] }
+;
 
 op:
     | PLUS      { Plus }

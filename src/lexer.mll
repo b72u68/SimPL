@@ -38,6 +38,7 @@ rule token =  parse
     | "{" { LBRACE }
     | "}" { RBRACE }
     | ":" { COLON }
+    | ";" { SEMICOLON }
     | "," { COMMA }
     | "?" { QUESTION }
 
