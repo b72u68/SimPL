@@ -1,5 +1,6 @@
 {
     open Parser
+    exception Quit
 }
 
 let digit = ['0'-'9']
@@ -24,6 +25,7 @@ rule token =  parse
     | "<" { LT }
     | ">=" { GE }
     | ">" { GT }
+    | "!=" { NEQ }
     | "==" { EQ }
     | "=" { EQUAL }
     | "max" { MAX }
@@ -31,10 +33,10 @@ rule token =  parse
 
     | "(" { LPAREN }
     | ")" { RPAREN }
-    | "[" { SQLBRACKET }
-    | "]" { SQRBRACKET }
-    | "{" { LBRACKET }
-    | "}" { RBRACKET }
+    | "[" { LBRACKET }
+    | "]" { RBRACKET }
+    | "{" { LBRACE }
+    | "}" { RBRACE }
     | ":" { COLON }
     | "," { COMMA }
     | ";" { SEMICOLON }

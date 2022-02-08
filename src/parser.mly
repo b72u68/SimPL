@@ -9,16 +9,21 @@
 %token AND OR
 %token LT LE GT GE EQ EQUAL
 %token LPAREN RPAREN
-%token SQLBRACKET SQRBRACKET
-%token LBRACKET RBRACKET
+%token LBRACE RBRACE
 %token MAX MIN
 %token NTH
 %token SIZE
 %token IF THEN ELSE
 %token WHILE
-%token QUESTION COLON COMMA SEMICOLON
+%token QUESTION COLON
+%token COMMA SEMICOLON
 %token SKIP
 %token EOF
+
+%nonassoc EQUAL
+%left LT LE GT GE NE EQ
+%left TIMES DIV
+%left QUESTION COLON
 
 %start <Ast.stmt> prog
 
@@ -35,18 +40,20 @@ expr:
     | LPAREN expr RPAREN                { $2 }
     | MAX LPAREN expr COMMA expr RPAREN { Op (Max, $3, $5) }
     | MIN LPAREN expr COMMA expr RPAREN { Op (Min, $3, $5) }
-    | VAR SQLBRACKET expr SQRBRACKET    { Nth ($1, $3) }
+    | VAR LBRACKET expr RBRACKET        { Nth ($1, $3) }
     | SIZE LPAREN lst RPAREN            { Size  $3 }
 ;
 
 stmt:
     | VAR EQUAL expr                                { Let ($1, $3) }
-    | VAR SQLBRACKET expr SQRBRACKET EQUAL expr     { LetNth ($1, $3, $6) }
+    | VAR LBRACKET expr RBRACKET EQUAL expr         { LetNth ($1, $3, $6) }
     | IF expr THEN stmt ELSE stmt                   { If ($2, $4, $6) }
-    | WHILE expr LBRACKET stmt RBRACKET             { While ($2, $4) }
-    | stmt SEMICOLON stmt                           { Seq ($1, $3) }
+    | WHILE expr LBRACE stmt RBRACE                 { While ($2, $4) }
+    | stmt stmt                                     { $1::$2 }
     | SKIP                                          { Skip }
+    |                                               { [] }
 ;
+
 
 op:
     | PLUS      { Plus }
@@ -60,6 +67,7 @@ op:
     | GT        { Gt }
     | GE        { Ge }
     | EQ        { Eq }
+    | NEQ       { Neq }
 ;
 
 const:
@@ -69,5 +77,5 @@ const:
 ;
 
 lst:
-    | SQLBRACKET separated_list(COMMA, const) SQRBRACKET    { $2 }
+    | LBRACKET separated_list(COMMA, const) RBRACKET    { $2 }
 ;
