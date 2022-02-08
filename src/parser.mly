@@ -7,21 +7,20 @@
 %token TRUE FALSE
 %token PLUS MINUS TIMES DIV
 %token AND OR
-%token LT LE GT GE EQ EQUAL
+%token LT LE GT GE EQ NEQ EQUAL
 %token LPAREN RPAREN
+%token LBRACKET RBRACKET
 %token LBRACE RBRACE
 %token MAX MIN
-%token NTH
 %token SIZE
 %token IF THEN ELSE
 %token WHILE
 %token QUESTION COLON
-%token COMMA SEMICOLON
+%token COMMA
 %token SKIP
 %token EOF
 
-%nonassoc EQUAL
-%left LT LE GT GE NE EQ
+%left LT LE GT GE NEQ EQ
 %left TIMES DIV
 %left QUESTION COLON
 
@@ -45,13 +44,12 @@ expr:
 ;
 
 stmt:
-    | VAR EQUAL expr                                { Let ($1, $3) }
+    | VAR EQUAL expr                                { Let ($1, Exp $3) }
+    | VAR EQUAL lst                                 { Let ($1, Lst $3) }
     | VAR LBRACKET expr RBRACKET EQUAL expr         { LetNth ($1, $3, $6) }
     | IF expr THEN stmt ELSE stmt                   { If ($2, $4, $6) }
     | WHILE expr LBRACE stmt RBRACE                 { While ($2, $4) }
-    | stmt stmt                                     { $1::$2 }
     | SKIP                                          { Skip }
-    |                                               { [] }
 ;
 
 

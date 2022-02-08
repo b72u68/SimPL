@@ -39,7 +39,6 @@ rule token =  parse
     | "}" { RBRACE }
     | ":" { COLON }
     | "," { COMMA }
-    | ";" { SEMICOLON }
     | "?" { QUESTION }
 
     | "if" { IF }

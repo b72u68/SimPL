@@ -28,8 +28,12 @@ type exp =
     | Nth of var * exp
     | Size of lst
 
+type value =
+    | Exp of exp
+    | Lst of lst
+
 type stmt =
-    | Let of var * exp
+    | Let of var * value
     | LetNth of var * exp * exp
     | If of exp * stmt * stmt
     | While of exp * stmt
