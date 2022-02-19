@@ -25,6 +25,13 @@ expr =
     | max(expr, expr) | min(expr, expr)
     | arr[expr]
     | size(arr)
+stmt =
+    | x = expr
+    | a[expr] = expr
+    | if expr then { stmt } else { stmt }
+    | while expr { stmt }
+    | stmt; stmt
+    | skip
 ```
 
 ## Installation and Running

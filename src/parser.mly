@@ -76,5 +76,5 @@ const:
 ;
 
 lst:
-    | LBRACKET separated_list(COMMA, const) RBRACKET    { $2 }
+    | LBRACKET separated_list(SEMICOLON, const) RBRACKET    { $2 }
 ;
