@@ -1,41 +1,35 @@
-type op =
+type binop =
     | Plus
     | Minus
     | Times
     | Div
+
+type relop =
     | Lt
     | Gt
     | Le
     | Ge
     | Eq
     | Neq
-    | And
-    | Or
-    | Max
-    | Min
 
 type var = string
 
-type const = Int of int | True | False
-
-type lst = const list
-
-type exp =
-    | Const of const
+type intexpr =
+    | Num of int
     | Var of var
-    | Op of op * exp * exp
-    | IfExp of exp * exp * exp
-    | Nth of var * exp
-    | Size of lst
+    | Binop of binop * intexpr * intexpr
+    | IfExpr of boolexpr * intexpr * intexpr
 
-type value =
-    | Exp of exp
-    | Lst of lst
+and boolexpr =
+    | True
+    | False
+    | Relop of relop * intexpr * intexpr
+    | And of boolexpr * boolexpr
+    | Or of boolexpr * boolexpr
 
 type stmt =
-    | Let of var * value
-    | LetNth of var * exp * exp
-    | If of exp * stmt * stmt
-    | While of exp * stmt
+    | Assign of var * intexpr
+    | If of boolexpr * stmt * stmt
+    | While of boolexpr * stmt
     | Seq of stmt list
     | Skip

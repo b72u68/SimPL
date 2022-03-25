@@ -9,72 +9,61 @@
 %token AND OR
 %token LT LE GT GE EQ NEQ EQUAL
 %token LPAREN RPAREN
-%token LBRACKET RBRACKET
 %token LBRACE RBRACE
-%token MAX MIN
-%token SIZE
-%token IF THEN ELSE
+%token IF ELSE
 %token WHILE
 %token QUESTION COLON SEMICOLON
-%token COMMA
 %token SKIP
 %token EOF
+
+%left PLUS MINUS
+%left TIMES DIV
 
 %start <Ast.stmt> prog
 
 %%
 prog:
-    | stmt EOF      { $1 }
+    | stmts EOF      { Seq $1 }
 ;
 
-expr:
-    | const                             { Const $1 }
-    | VAR                               { Var $1 }
-    | expr op expr                      { Op ($2, $1, $3) }
-    | expr QUESTION expr COLON expr     { IfExp ($1, $3, $5) }
-    | LPAREN expr RPAREN                { $2 }
-    | MAX LPAREN expr COMMA expr RPAREN { Op (Max, $3, $5) }
-    | MIN LPAREN expr COMMA expr RPAREN { Op (Min, $3, $5) }
-    | VAR LBRACKET expr RBRACKET        { Nth ($1, $3) }
-    | SIZE LPAREN lst RPAREN            { Size  $3 }
+iexpr:
+    | INT                                               { Num $1 }
+    | VAR                                               { Var $1 }
+    | LPAREN bexpr QUESTION iexpr COLON iexpr RPAREN    { IfExpr ($2, $4, $6) }
+    | iexpr PLUS iexpr                                  { Binop (Plus, $1, $3) }
+    | iexpr MINUS iexpr                                 { Binop (Minus, $1, $3) }
+    | iexpr TIMES iexpr                                 { Binop (Times, $1, $3) }
+    | iexpr DIV iexpr                                   { Binop (Div, $1, $3) }
+    | LPAREN iexpr RPAREN                               { $2 }
+;
+
+bexpr:
+    | TRUE                              { True }
+    | FALSE                             { False }
+    | bexpr AND bexpr                   { And ($1, $3) }
+    | bexpr OR bexpr                    { Or ($1, $3) }
+    | iexpr LT iexpr                    { Relop (Lt, $1, $3) }
+    | iexpr GT iexpr                    { Relop (Gt, $1, $3) }
+    | iexpr LE iexpr                    { Relop (Le, $1, $3) }
+    | iexpr GE iexpr                    { Relop (Ge, $1, $3) }
+    | iexpr EQ iexpr                    { Relop (Eq, $1, $3) }
+    | iexpr NEQ iexpr                   { Relop (Neq, $1, $3) }
+    | LPAREN bexpr RPAREN               { $2 }
 ;
 
 stmt:
-    | VAR EQUAL expr                                { Let ($1, Exp $3) }
-    | VAR EQUAL lst                                 { Let ($1, Lst $3) }
-    | VAR LBRACKET expr RBRACKET EQUAL expr         { LetNth ($1, $3, $6) }
-    | IF expr THEN stmt ELSE stmt                   { If ($2, $4, $6) }
-    | WHILE expr LBRACE stmt RBRACE                 { While ($2, $4) }
-    | stmts                                         { Seq $1 }
-    | SKIP                                          { Skip }
+    | VAR EQUAL iexpr SEMICOLON         { Assign ($1, $3) }
+    | IF bexpr block ELSE block         { If ($2, $3, $5) }
+    | WHILE bexpr block                 { While ($2, $3) }
+    | SKIP SEMICOLON                    { Skip }
 ;
 
 stmts:
-    | stmt SEMICOLON stmts  { $1::$3 }
-    |                       { [] }
+    | stmt stmts    { $1::$2 }
+    |               { [] }
 ;
 
-op:
-    | PLUS      { Plus }
-    | MINUS     { Minus }
-    | TIMES     { Times }
-    | DIV       { Div }
-    | AND       { And }
-    | OR        { Or }
-    | LT        { Lt }
-    | LE        { Le }
-    | GT        { Gt }
-    | GE        { Ge }
-    | EQ        { Eq }
-    | NEQ       { Neq }
-;
-
-const:
-    | INT       { Int $1 }
-    | TRUE      { True }
-    | FALSE     { False }
-;
-
-lst:
-    | LBRACKET separated_list(SEMICOLON, const) RBRACKET    { $2 }
+block:
+    | stmt                      { Seq [$1] }
+    | LBRACE stmts RBRACE       { Seq $2 }
 ;
