@@ -8,7 +8,11 @@ let varchar = ['a'-'z' 'A'-'Z' '_' '0'-'9']
 let var = ['a'-'z'] varchar*
 let ws = [' ' '\t' '\n']
 
-rule token =  parse
+rule comment = parse
+    | '\n' { Lexing.new_line lexbuf; token lexbuf }
+    | _ { comment lexbuf }
+and token =  parse
+    | "\\" { comment lexbuf }
     | ws { token lexbuf }
     | num as n { INT (int_of_string n) }
     | "true"  { TRUE }
@@ -24,9 +28,9 @@ rule token =  parse
     | "<" { LT }
     | ">=" { GE }
     | ">" { GT }
-    | "!=" { NEQ }
-    | "==" { EQ }
-    | "=" { EQUAL }
+    | "!=" { NE }
+    | "=" { EQ }
+    | ":=" { ASSIGN }
 
     | "(" { LPAREN }
     | ")" { RPAREN }
@@ -35,12 +39,15 @@ rule token =  parse
     | ":" { COLON }
     | ";" { SEMICOLON }
     | "?" { QUESTION }
+    | "," { SEMICOLON }
+
+    | "max" { MAX }
+    | "min" { MIN }
+    | "size" { SIZE }
 
     | "if" { IF }
     | "else" { ELSE }
-
     | "while" { WHILE }
-
     | "skip" { SKIP }
 
     | var as s { VAR s }

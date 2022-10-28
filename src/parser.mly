@@ -7,15 +7,20 @@
 %token TRUE FALSE
 %token PLUS MINUS TIMES DIV
 %token AND OR
-%token LT LE GT GE EQ NEQ EQUAL
+%token LT LE GT GE EQ NE
+%token ASSIGN
+%token MAX MIN SIZE
 %token LPAREN RPAREN
 %token LBRACE RBRACE
 %token IF ELSE
 %token WHILE
-%token QUESTION COLON SEMICOLON
+%token QUESTION COLON SEMICOLON COMMA
 %token SKIP
 %token EOF
 
+%left OR
+%left AND
+%left LT LE GT GE NE EQ
 %left PLUS MINUS
 %left TIMES DIV
 
@@ -23,47 +28,49 @@
 
 %%
 prog:
-    | stmts EOF      { Seq $1 }
+    | ss=stmts EOF      { SBlock ss }
 ;
 
-iexpr:
-    | INT                                               { Num $1 }
-    | VAR                                               { Var $1 }
-    | LPAREN bexpr QUESTION iexpr COLON iexpr RPAREN    { IfExpr ($2, $4, $6) }
-    | iexpr PLUS iexpr                                  { Binop (Plus, $1, $3) }
-    | iexpr MINUS iexpr                                 { Binop (Minus, $1, $3) }
-    | iexpr TIMES iexpr                                 { Binop (Times, $1, $3) }
-    | iexpr DIV iexpr                                   { Binop (Div, $1, $3) }
-    | LPAREN iexpr RPAREN                               { $2 }
+const:
+    | TRUE                                              { EBool true }
+    | FALSE                                             { EBool false }
+    | n=INT                                             { ENum n }
+;
+
+expr:
+    | c=const                                           { EConst c }
+    | v=VAR                                             { EVar v }
+    | LPAREN; e1=expr; QUESTION; e2=expr; COLON; e3=expr; RPAREN        { EIf (e1, e2, e3) }
+    | MAX; LPAREN; e1=expr; COMMA; e2=expr; RPAREN      { EFun (FMax, [e1; e2]) }
+    | MIN; LPAREN; e1=expr; COMMA; e2=expr; RPAREN      { EFun (FMin, [e1; e2]) }
+    | SIZE; LPAREN; e=expr; RPAREN                      { EFun (FSize, [e]) }
+    | LPAREN; e=expr; RPAREN                            { e }
+    | e=bexpr                                           { e }
 ;
 
 bexpr:
-    | TRUE                              { True }
-    | FALSE                             { False }
-    | bexpr AND bexpr                   { And ($1, $3) }
-    | bexpr OR bexpr                    { Or ($1, $3) }
-    | iexpr LT iexpr                    { Relop (Lt, $1, $3) }
-    | iexpr GT iexpr                    { Relop (Gt, $1, $3) }
-    | iexpr LE iexpr                    { Relop (Le, $1, $3) }
-    | iexpr GE iexpr                    { Relop (Ge, $1, $3) }
-    | iexpr EQ iexpr                    { Relop (Eq, $1, $3) }
-    | iexpr NEQ iexpr                   { Relop (Neq, $1, $3) }
-    | LPAREN bexpr RPAREN               { $2 }
+    | e1=expr; PLUS; e2=expr                            { EBinop (Plus, e1, e2) }
+    | e1=expr; MINUS; e2=expr                           { EBinop (Minus, e1, e2) }
+    | e1=expr; TIMES; e2=expr                           { EBinop (Times, e1, e2) }
+    | e1=expr; DIV; e2=expr                             { EBinop (Div, e1, e2) }
+    | e1=expr; AND; e2=expr                             { EBinop (And, e1, e2) }
+    | e1=expr; OR; e2=expr                              { EBinop (Or, e1, e2) }
+    | e1=expr; LE; e2=expr                              { EBinop (Le, e1, e2) }
+    | e1=expr; LT; e2=expr                              { EBinop (Lt, e1, e2) }
+    | e1=expr; GE; e2=expr                              { EBinop (Ge, e1, e2) }
+    | e1=expr; GT; e2=expr                              { EBinop (Gt, e1, e2) }
+    | e1=expr; NE; e2=expr                              { EBinop (Neq, e1, e2) }
+    | e1=expr; EQ; e2=expr                              { EBinop (Eq, e1, e2) }
 ;
 
 stmt:
-    | VAR EQUAL iexpr SEMICOLON         { Assign ($1, $3) }
-    | IF bexpr block ELSE block         { If ($2, $3, $5) }
-    | WHILE bexpr block                 { While ($2, $3) }
-    | SKIP SEMICOLON                    { Skip }
+    | v=VAR; ASSIGN; e=expr                                                 { SAssign (v, e) }
+    | IF; e=expr; LBRACE; s1=stmts; RBRACE; ELSE; LBRACE; s2=stmts; RBRACE  { SIf (e, SBlock s1, SBlock s2) }
+    | WHILE; e=expr; LBRACE; s=stmts; RBRACE                                { SWhile (e, SBlock s) }
+    | SKIP                                                                  { SSkip }
 ;
 
 stmts:
-    | stmt stmts    { $1::$2 }
-    |               { [] }
-;
-
-block:
-    | stmt                      { Seq [$1] }
-    | LBRACE stmts RBRACE       { Seq $2 }
+    |                                   { [] }
+    | s=stmt; SEMICOLON; ss=stmts       { s::ss }
 ;

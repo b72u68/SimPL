@@ -1,35 +1,38 @@
-type binop =
+type var = string
+
+type const =
+    | ENum of int
+    | EBool of bool
+
+type bop =
     | Plus
     | Minus
     | Times
+    | And
+    | Or
     | Div
-
-type relop =
-    | Lt
-    | Gt
     | Le
+    | Lt
     | Ge
+    | Gt
     | Eq
     | Neq
 
-type var = string
+type func =
+    | FMax
+    | FMin
+    | FSize
 
-type intexpr =
-    | Num of int
-    | Var of var
-    | Binop of binop * intexpr * intexpr
-    | IfExpr of boolexpr * intexpr * intexpr
-
-and boolexpr =
-    | True
-    | False
-    | Relop of relop * intexpr * intexpr
-    | And of boolexpr * boolexpr
-    | Or of boolexpr * boolexpr
+type exp =
+    | EConst of const
+    | EVar of var
+    | EBinop of bop * exp * exp
+    | EIf of exp * exp * exp
+    | EFun of func * exp list
 
 type stmt =
-    | Assign of var * intexpr
-    | If of boolexpr * stmt * stmt
-    | While of boolexpr * stmt
-    | Seq of stmt list
-    | Skip
+    | SAssign of var * exp
+    | SIf of exp * stmt * stmt
+    | SWhile of exp * stmt
+    | SBlock of stmt list
+    | SSkip
