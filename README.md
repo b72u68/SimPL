@@ -13,21 +13,27 @@ It would be fun.
 The BNF for SimPL is as followed:
 
 ```
-op = "+" | "-" | "*" | "/" | ">" | "<" | ">=" | "<=" | "==" | "&&" | "||"
+op = + | - | * | / | > | < | >= | <= | == | && | ||
+
 const = int | true | false
-lst = const list
+
+arr = const list
+
 expr =
     | const
     | var
     | (expr)
     | expr op expr
     | expr ? expr : expr
-    | max(expr, expr) | min(expr, expr)
+    | max(expr, expr)
+    | min(expr, expr)
     | arr[expr]
     | size(arr)
+
 stmt =
     | x = expr
-    | a[expr] = expr
+    | arr[expr] = const list
+    | arr[expr] = expr
     | if expr then { stmt } else { stmt }
     | while expr { stmt }
     | stmt; stmt
@@ -36,14 +42,18 @@ stmt =
 
 ## Installation and Running
 
-This project requires Ocaml package manager `opam`.
+This project requires Ocaml package manager `opam`. Learn more about `opam` and
+install it [here](https://opam.ocaml.org/).
 
 ```
 # install dependencies
 $ make setup
 
 # build parser (this will run utop)
-$ make
+$ make build
+
+# open project in top level
+$ make utop
 
 # remove/clean build
 $ make clean
@@ -51,6 +61,10 @@ $ make clean
 
 ## TODO
 
-- [ ] Adding array to the grammar
+- [ ] Add array to the grammar
+
+- [ ] Typecheck?
+
+- [ ] Implement a function to perform small-step and big-step operational semantics
 
 - [ ] Implement verification system

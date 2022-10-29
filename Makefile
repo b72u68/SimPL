@@ -1,11 +1,11 @@
 setup:
 	opam install dune utop menhir
 
-build: src/main.ml src/ast.ml src/parser.mly src/lexer.mll src/dune
+build: lib/ast.ml lib/parser.mly lib/lexer.mll lib/dune bin/simpl.ml bin/dune
 	dune build
 
-run: src
-	dune utop src
+utop: bin
+	dune utop bin
 
 clean: _build
 	dune clean

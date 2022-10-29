@@ -1,0 +1,3 @@
+(executable
+  (name simpl)
+  (libraries SimPL))

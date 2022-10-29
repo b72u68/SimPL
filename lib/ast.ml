@@ -4,6 +4,8 @@ type const =
     | ENum of int
     | EBool of bool
 
+type arr = const list
+
 type bop =
     | Plus
     | Minus
@@ -29,9 +31,12 @@ type exp =
     | EBinop of bop * exp * exp
     | EIf of exp * exp * exp
     | EFun of func * exp list
+    | EArrIdx of var * exp
 
 type stmt =
     | SAssign of var * exp
+    | SArrAssign of var * arr
+    | SArrIdxAssign of var * exp * exp
     | SIf of exp * stmt * stmt
     | SWhile of exp * stmt
     | SBlock of stmt list

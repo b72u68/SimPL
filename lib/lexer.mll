@@ -36,10 +36,12 @@ and token =  parse
     | ")" { RPAREN }
     | "{" { LBRACE }
     | "}" { RBRACE }
+    | "[" { LBRACKET }
+    | "]" { RBRACKET }
     | ":" { COLON }
     | ";" { SEMICOLON }
     | "?" { QUESTION }
-    | "," { SEMICOLON }
+    | "," { COMMA }
 
     | "max" { MAX }
     | "min" { MIN }

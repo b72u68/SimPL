@@ -12,6 +12,7 @@
 %token MAX MIN SIZE
 %token LPAREN RPAREN
 %token LBRACE RBRACE
+%token LBRACKET RBRACKET
 %token IF ELSE
 %token WHILE
 %token QUESTION COLON SEMICOLON COMMA
@@ -28,7 +29,7 @@
 
 %%
 prog:
-    | ss=stmts EOF      { SBlock ss }
+    | ss=stmt_list EOF      { SBlock ss }
 ;
 
 const:
@@ -44,6 +45,7 @@ expr:
     | MAX; LPAREN; e1=expr; COMMA; e2=expr; RPAREN      { EFun (FMax, [e1; e2]) }
     | MIN; LPAREN; e1=expr; COMMA; e2=expr; RPAREN      { EFun (FMin, [e1; e2]) }
     | SIZE; LPAREN; e=expr; RPAREN                      { EFun (FSize, [e]) }
+    | v=VAR; LBRACKET; e=expr; RBRACKET                 { EArrIdx (v, e) }
     | LPAREN; e=expr; RPAREN                            { e }
     | e=bexpr                                           { e }
 ;
@@ -64,13 +66,18 @@ bexpr:
 ;
 
 stmt:
-    | v=VAR; ASSIGN; e=expr                                                 { SAssign (v, e) }
-    | IF; e=expr; LBRACE; s1=stmts; RBRACE; ELSE; LBRACE; s2=stmts; RBRACE  { SIf (e, SBlock s1, SBlock s2) }
-    | WHILE; e=expr; LBRACE; s=stmts; RBRACE                                { SWhile (e, SBlock s) }
-    | SKIP                                                                  { SSkip }
+    | v=VAR; ASSIGN; e=expr                                                         { SAssign (v, e) }
+    | v=VAR; ASSIGN; LBRACKET; cs=const_list; RBRACKET                              { SArrAssign (v, cs) }
+    | v=VAR; LBRACKET; e1=expr; RBRACKET; ASSIGN; e2=expr                           { SArrIdxAssign (v, e1, e2) }
+    | IF; e=expr; LBRACE; s1=stmt_list; RBRACE; ELSE; LBRACE; s2=stmt_list; RBRACE  { SIf (e, SBlock s1, SBlock s2) }
+    | WHILE; e=expr; LBRACE; s=stmt_list; RBRACE                                    { SWhile (e, SBlock s) }
+    | SKIP                                                                          { SSkip }
 ;
 
-stmts:
-    |                                   { [] }
-    | s=stmt; SEMICOLON; ss=stmts       { s::ss }
+stmt_list:
+    ss=separated_nonempty_list(SEMICOLON, stmt)     { ss }
+;
+
+const_list:
+    cs=separated_list(COMMA, const)                 { cs }
 ;

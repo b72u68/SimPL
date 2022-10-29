@@ -1,0 +1,8 @@
+n := 0;
+while n < 100 {
+    if n / 50 = 1 {
+        skip
+    } else {
+        n := n + 1
+    }
+}
