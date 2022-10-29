@@ -1,12 +1,11 @@
-let parse filename =
-    let chan = open_in filename in
-    let lexbuf = Lexing.from_channel chan in
-    let ast = Parser.prog Lexer.token lexbuf in
-    ast
-;;
+type parsesrc = FILE | STRING
 
-let parse_str s =
-    let lexbuf = Lexing.from_string s in
+let parse ?(source=FILE) (input: string) =
+    let lexbuf =
+        match source with
+        | FILE -> open_in input |> Lexing.from_channel
+        | STRING -> Lexing.from_string input
+    in
     let ast = Parser.prog Lexer.token lexbuf in
     ast
 ;;
