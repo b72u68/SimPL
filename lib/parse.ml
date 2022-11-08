@@ -15,4 +15,3 @@ let parse ?(source=FILE) (input: string) =
     | STRING ->
             let lexbuf = Lexing.from_string input in
             Parser.prog Lexer.token lexbuf
-;;

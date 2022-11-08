@@ -6,9 +6,9 @@ at Illinois Tech.
 ## Overview
 
 I created this parser for fun and to check whether the given expressions in
-the homework are legal or not, which can easily be done by hand in 15 minutes,
+the homework are valid or not, which can easily be done by hand in 15 minutes,
 but I had decided that why not spend 24 hours to make a parser to automate it.
-It would be fun.
+It would be fun (it wasn't).
 
 The BNF for SimPL is as followed:
 
@@ -61,7 +61,7 @@ $ make clean
 
 ## TODO
 
-- [ ] Add array to the grammar
+- [x] Add array to the grammar
 
 - [ ] Typecheck?
 
