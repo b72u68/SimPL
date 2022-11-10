@@ -47,10 +47,13 @@ install it [here](https://opam.ocaml.org/).
 
 ```
 # install dependencies
-$ make setup
+$ make
 
-# build parser (this will run utop)
+# build parser executable
 $ make build
+
+# run the parser
+$ ./simpl <filename>
 
 # open project in top level
 $ make utop
@@ -61,10 +64,10 @@ $ make clean
 
 ## TODO
 
-- [x] Add array to the grammar
-
 - [ ] Typecheck?
 
 - [ ] Implement a function to perform small-step and big-step operational semantics
 
 - [ ] Implement verification system
+
+- [x] ~~Add array to the grammar~~
