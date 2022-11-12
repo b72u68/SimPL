@@ -13,7 +13,7 @@ It would be fun (it wasn't).
 The BNF for SimPL is as followed:
 
 ```
-op = + | - | * | / | > | < | >= | <= | == | && | ||
+op = + | - | * | / | > | < | >= | <= | = | && | ||
 
 const = int | true | false
 
@@ -31,9 +31,9 @@ expr =
     | size(arr)
 
 stmt =
-    | x = expr
-    | arr[expr] = const list
-    | arr[expr] = expr
+    | x := expr
+    | arr[expr] := const list
+    | arr[expr] := expr
     | if expr then { stmt } else { stmt }
     | while expr { stmt }
     | stmt; stmt
@@ -53,7 +53,7 @@ $ make
 $ make build
 
 # run the parser
-$ ./simpl <filename>
+$ dune exec simpl <filename>
 
 # open project in top level
 $ make utop
