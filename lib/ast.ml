@@ -6,13 +6,17 @@ type const =
 
 type arr = const list
 
+type value =
+    | Const of const
+    | Arr of arr
+
 type bop =
     | Plus
     | Minus
     | Times
+    | Div
     | And
     | Or
-    | Div
     | Le
     | Lt
     | Ge
