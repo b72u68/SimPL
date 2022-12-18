@@ -17,23 +17,21 @@ op = + | - | * | / | > | < | >= | <= | = | && | ||
 
 const = int | true | false
 
-arr = const list
-
 expr =
     | const
     | var
+    | const list
+    | var[expr]
     | (expr)
     | expr op expr
     | expr ? expr : expr
     | max(expr, expr)
     | min(expr, expr)
-    | arr[expr]
-    | size(arr)
+    | size(expr)
 
 stmt =
     | x := expr
-    | arr[expr] := const list
-    | arr[expr] := expr
+    | var[expr] := expr
     | if expr then { stmt } else { stmt }
     | while expr { stmt }
     | stmt; stmt
