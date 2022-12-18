@@ -33,9 +33,9 @@ prog:
 ;
 
 const:
-    | TRUE                                              { EBool true }
-    | FALSE                                             { EBool false }
-    | n=INT                                             { EInt n }
+    | TRUE                                              { CBool true }
+    | FALSE                                             { CBool false }
+    | n=INT                                             { CInt n }
 ;
 
 expr:

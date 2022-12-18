@@ -6,8 +6,8 @@ type typ =
     | TArray of typ
 
 type const =
-    | EInt of int
-    | EBool of bool
+    | CInt of int
+    | CBool of bool
 
 type bop =
     | Plus
