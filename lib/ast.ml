@@ -1,3 +1,5 @@
+exception SyntaxError of string
+
 type var = string
 
 type typ =

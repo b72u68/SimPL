@@ -62,10 +62,12 @@ $ make clean
 
 ## TODO
 
-- [ ] Typecheck?
+- [ ] Include position in error message
 
 - [ ] Implement a function to perform small-step and big-step operational semantics
 
 - [ ] Implement verification system
 
 - [x] ~~Add array to the grammar~~
+
+- [x] ~~Typecheck?~~
