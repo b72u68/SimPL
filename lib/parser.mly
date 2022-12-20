@@ -1,9 +1,5 @@
 %{
     open Ast
-    open Lexing
-    open Lexer
-
-    let syn_err = Ast.syn_err SyntaxError
 %}
 
 %token <int> INT
@@ -33,7 +29,7 @@
 
 %%
 prog:
-    | ss=stmt_list EOF      { mk_stmt (SBlock ss) $loc }
+    | ss=stmt_list EOF      { ss }
 ;
 
 const:
@@ -64,22 +60,22 @@ bexpr:
     | e1=expr; OR; e2=expr                              { mk_exp (EBinop (Or, e1, e2)) $loc }
     | e1=expr; LE; e2=expr                              { mk_exp (EBinop (Le, e1, e2)) $loc }
     | e1=expr; LT; e2=expr                              { mk_exp (EBinop (Lt, e1, e2)) $loc }
-    | e1=expr; GE; e2=expr                              { mk_exp ((EBinop (Ge, e1, e2)) $loc }
+    | e1=expr; GE; e2=expr                              { mk_exp (EBinop (Ge, e1, e2)) $loc }
     | e1=expr; GT; e2=expr                              { mk_exp (EBinop (Gt, e1, e2)) $loc }
     | e1=expr; NE; e2=expr                              { mk_exp (EBinop (Neq, e1, e2)) $loc }
     | e1=expr; EQ; e2=expr                              { mk_exp (EBinop (Eq, e1, e2)) $loc }
 ;
 
 stmt:
-    | v=VAR; ASSIGN; e=expr                                                         { mk_stmt (SAssign (LHVar v, e)) $loc }
-    | v=VAR; LBRACKET; e1=expr; RBRACKET; ASSIGN; e2=expr                           { mk_stmt (SAssign (LHArr (v, e1), e2)) $loc }
-    | IF; e=expr; LBRACE; s1=stmt_list; RBRACE; ELSE; LBRACE; s2=stmt_list; RBRACE  { mk_stmt (SIf (e, SBlock s1, SBlock s2)) $loc }
-    | WHILE; e=expr; LBRACE; s=stmt_list; RBRACE                                    { mk_stmt (SWhile (e, SBlock s)) $loc }
+    | v=VAR; ASSIGN; e=expr                                                         { mk_stmt (SAssign (mk_lhs (LHVar v) $loc, e)) $loc }
+    | v=VAR; LBRACKET; e1=expr; RBRACKET; ASSIGN; e2=expr                           { mk_stmt (SAssign (mk_lhs (LHArr (v, e1)) $loc, e2)) $loc }
+    | IF; e=expr; LBRACE; s1=stmt_list; RBRACE; ELSE; LBRACE; s2=stmt_list; RBRACE  { mk_stmt (SIf (e, s1, s2)) $loc }
+    | WHILE; e=expr; LBRACE; s=stmt_list; RBRACE                                    { mk_stmt (SWhile (e, s)) $loc }
     | SKIP                                                                          { mk_stmt SSkip $loc }
 ;
 
 stmt_list:
-    ss=separated_nonempty_list(SEMICOLON, stmt)     { ss }
+    ss=separated_nonempty_list(SEMICOLON, stmt)     { mk_stmt (SBlock ss) $loc }
 ;
 
 const_list:

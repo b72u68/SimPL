@@ -6,14 +6,16 @@ let digit = ['0'-'9']
 let num = digit+
 let varchar = ['a'-'z' 'A'-'Z' '_' '0'-'9']
 let var = ['a'-'z'] varchar*
-let ws = [' ' '\t' '\n']
+let ws = [' ' '\t']
 
 rule comment = parse
     | '\n' { Lexing.new_line lexbuf; token lexbuf }
     | _ { comment lexbuf }
 and token =  parse
-    | "\\" { comment lexbuf }
     | ws { token lexbuf }
+    | '\n' { Lexing.new_line lexbuf; token lexbuf }
+    | "\r\n" { Lexing.new_line lexbuf; token lexbuf }
+    | "\\" { comment lexbuf }
     | num as n { INT (int_of_string n) }
     | "true"  { TRUE }
     | "false" { FALSE }

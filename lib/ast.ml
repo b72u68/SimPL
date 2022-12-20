@@ -1,4 +1,4 @@
-open Util
+exception SyntaxError
 
 type loc = Lexing.position * Lexing.position
 type var = string
@@ -58,6 +58,11 @@ let mk_exp e loc = { edesc = e; eloc = loc }
 let mk_lhs l loc = { ldesc = l; lloc = loc }
 let mk_stmt s loc = { sdesc = s; sloc = loc }
 
-let syn_err e s (spos, epos) =
+let string_of_pos p =
+    Lexing.(Printf.sprintf "%d:%d"
+            p.pos_lnum
+            (p.pos_cnum - p.pos_bol))
+
+let syn_err s (spos, epos) =
     Printf.printf "%s--%s: Syntax Error: %s\n" (string_of_pos spos) (string_of_pos epos) s;
-    raise e
+    raise SyntaxError
