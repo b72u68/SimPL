@@ -1,4 +1,5 @@
 open Ast
+open Util
 
 module VarMap = Map.Make(String)
 
@@ -6,12 +7,11 @@ type ctx = typ VarMap.t
 
 exception TypeError of string
 
-let rec string_of_type = function
-    | TInt -> "int"
-    | TBool -> "bool"
-    | TArray t -> (string_of_type t) ^ " array"
-
-let t_error t1 t2 = Printf.sprintf "expected type %s, got %s" (string_of_type t1) (string_of_type t2)
+let typ_err t1 t2 pos =
+    Printf.sprintf "%s: TypeError: expected type %s, got %s\n"
+                    (string_of_pos pos)
+                    (string_of_type t1)
+                    (string_of_type t2)
 
 let rec teq t1 t2 =
     match (t1, t2) with
@@ -32,7 +32,7 @@ and typecheck_arr arr =
             (fun elem ->
                 let elem_type = typecheck_const elem in
                 if not (teq elem_type expected_type) then
-                    raise (TypeError (t_error expected_type elem_type))
+                    raise (TypeError (typ_err expected_type elem_type))
                 else ())
             arr;
         TArray expected_type
@@ -42,7 +42,8 @@ and typecheck_var ctx v =
         VarMap.find v ctx
     with Not_found -> raise (TypeError (Printf.sprintf "undefined variable \"%s\"" v))
 
-and typecheck_exp ctx = function
+and typecheck_exp ctx exp =
+    match exp.edesc with
     | EConst c -> typecheck_const c
     | EVar v -> typecheck_var ctx v
     | EArr arr -> typecheck_arr arr
@@ -51,7 +52,7 @@ and typecheck_exp ctx = function
             (match v_type with
             | TArray t ->
                 let e_type = typecheck_exp ctx e in
-                if not (teq e_type TInt) then raise (TypeError (t_error TInt e_type))
+                if not (teq e_type TInt) then raise (TypeError (typ_err TInt e_type))
                 else t
             | _ -> failwith "expected type array")
     | EBinop (bop, e1, e2) ->
@@ -59,25 +60,25 @@ and typecheck_exp ctx = function
             let e2_type = typecheck_exp ctx e2 in
             (match bop with
             | Plus | Minus | Times | Div | Le | Lt | Ge | Gt ->
-                    if not (teq e1_type TInt) then raise (TypeError (t_error TInt e1_type))
+                    if not (teq e1_type TInt) then raise (TypeError (typ_err TInt e1_type))
                     else
-                        if not (teq e2_type TInt) then raise (TypeError (t_error TInt e2_type))
+                        if not (teq e2_type TInt) then raise (TypeError (typ_err TInt e2_type))
                         else TInt
             | And | Or ->
-                    if not (teq e1_type TBool) then raise (TypeError (t_error TBool e1_type))
+                    if not (teq e1_type TBool) then raise (TypeError (typ_err TBool e1_type))
                     else
-                        if not (teq e2_type TBool) then raise (TypeError (t_error TBool e2_type))
+                        if not (teq e2_type TBool) then raise (TypeError (typ_err TBool e2_type))
                         else TBool
             | Eq | Neq ->
-                    if not (teq e1_type e2_type) then raise (TypeError (t_error e1_type e2_type))
+                    if not (teq e1_type e2_type) then raise (TypeError (typ_err e1_type e2_type))
                     else TBool)
     | EIf (e1, e2, e3) ->
             let e1_type = typecheck_exp ctx e1 in
-            if not (teq e1_type TBool) then raise (TypeError (t_error TBool e1_type))
+            if not (teq e1_type TBool) then raise (TypeError (typ_err TBool e1_type))
             else
                 let e2_type = typecheck_exp ctx e2 in
                 let e3_type = typecheck_exp ctx e3 in
-                if not (teq e2_type e3_type) then raise (TypeError (t_error e2_type e3_type))
+                if not (teq e2_type e3_type) then raise (TypeError (typ_err e2_type e3_type))
                 else e2_type
     | EFun (f, es) ->
             match f with
@@ -85,10 +86,10 @@ and typecheck_exp ctx = function
                     (match es with
                     | [e1; e2] ->
                             let e1_type = typecheck_exp ctx e1 in
-                            if not (teq e1_type TInt) then raise (TypeError (t_error TInt e1_type))
+                            if not (teq e1_type TInt) then raise (TypeError (typ_err TInt e1_type))
                             else
                                 let e2_type = typecheck_exp ctx e2 in
-                                if not (teq e2_type TInt) then raise (TypeError (t_error TInt e2_type))
+                                if not (teq e2_type TInt) then raise (TypeError (typ_err TInt e2_type))
                                 else TInt
                     | _ -> raise (SyntaxError (Printf.sprintf "function expected 2 arguments, got %d" (List.length es))))
             | FSize ->
@@ -103,11 +104,11 @@ and typecheck_exp ctx = function
 and typecheck_stmt ctx = function
     | SAssign (lh, e) ->
             let e_type = typecheck_exp ctx e in
-            (match lh with
+            (match lh.ldesc with
             | LHVar v ->
                     (try
                         let v_type = typecheck_var ctx v in
-                        if not (teq v_type e_type) then raise (TypeError (t_error v_type e_type))
+                        if not (teq v_type e_type) then raise (TypeError (typ_err v_type e_type))
                         else ctx
                     with TypeError _ -> VarMap.add v e_type ctx)
             | LHArr (v, e') ->
@@ -115,20 +116,20 @@ and typecheck_stmt ctx = function
                     match v_type with
                     | TArray t ->
                             let e'_type = typecheck_exp ctx e' in
-                            if not (teq e'_type TInt) then raise (TypeError (t_error TInt e'_type))
+                            if not (teq e'_type TInt) then raise (TypeError (typ_err TInt e'_type))
                             else
-                                if not (teq t e_type) then raise (TypeError (t_error t e_type))
+                                if not (teq t e_type) then raise (TypeError (typ_err t e_type))
                                 else ctx
                     | _ -> raise (TypeError (Printf.sprintf "expected type array, got %s" (string_of_type e_type))))
     | SIf (e, s1, s2) ->
             let e_type = typecheck_exp ctx e in
-            if not (teq e_type TBool) then raise (TypeError (t_error TBool e_type))
+            if not (teq e_type TBool) then raise (TypeError (typ_err TBool e_type))
             else
                 let ctx = typecheck_stmt ctx s1 in
                 typecheck_stmt ctx s2
     | SWhile (e, s) ->
             let e_type = typecheck_exp ctx e in
-            if not (teq e_type TBool) then raise (TypeError (t_error TBool e_type))
+            if not (teq e_type TBool) then raise (TypeError (typ_err TBool e_type))
             else typecheck_stmt ctx s
     | SBlock ss -> List.fold_left typecheck_stmt ctx ss
     | SSkip -> ctx
