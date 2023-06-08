@@ -5,10 +5,10 @@ at Illinois Tech.
 
 ## Overview
 
-I created this parser for fun and to check whether the given expressions in
-the homework are valid or not, which can easily be done by hand in 15 minutes,
-but I had decided that why not spend 24 hours to make a parser to automate it.
-It would be fun (it wasn't).
+I created this parser for fun and to check whether given expressions in
+the homework are valid or not, which could easily be done by hand in 15 minutes.
+But why dot that when I could spend 24 hours to make a parser to automate it. It
+would be fun! (It wasn't).
 
 The BNF for SimPL is as followed:
 
@@ -61,6 +61,8 @@ $ make clean
 ```
 
 ## TODO
+
+- [ ] Implement automating tests using `dune`
 
 - [ ] Implement a function to perform small-step and big-step operational semantics
 
