@@ -4,7 +4,7 @@ module VarMap = Map.Make(String)
 
 type ctx = typ VarMap.t
 
-exception TypeError
+exception TypeError of string
 
 let rec string_of_type = function
     | Ast.TInt -> "int"
@@ -15,11 +15,11 @@ let typ_mismatch_err t1 t2 =
     Printf.sprintf "expected type %s, got %s" (string_of_type t1) (string_of_type t2)
 
 let typ_err (spos, epos) msg =
-    Printf.printf "%s--%s: TypeError: %s\n"
+    let err_msg = Printf.sprintf "%s--%s: TypeError: %s"
                     (string_of_pos spos)
                     (string_of_pos epos)
-                    msg;
-    raise TypeError
+                    msg
+    in raise (TypeError err_msg)
 
 let rec teq t1 t2 =
     match (t1, t2) with
@@ -39,9 +39,9 @@ and typecheck_var ctx v loc =
 
 and typecheck_exp ctx exp =
     match exp.edesc with
-    | EConst c -> typecheck_const c
     | EVar v -> typecheck_var ctx v exp.eloc
-    | EArr arr ->
+    | EVal (VConst c) -> typecheck_const c
+    | EVal (VArr arr) ->
             if List.length arr = 0 then typ_err exp.eloc "empty array, expected at least 1 element in an array"
             else
                 let expected_type = typecheck_const (List.hd arr) in

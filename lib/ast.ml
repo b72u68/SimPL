@@ -31,10 +31,13 @@ type func =
     | FMin
     | FSize
 
+type value =
+    | VConst of const
+    | VArr of const list
+
 type exp_ =
-    | EConst of const
+    | EVal of value
     | EVar of var
-    | EArr of const list
     | EArrIdx of var * exp
     | EBinop of bop * exp * exp
     | EIf of exp * exp * exp

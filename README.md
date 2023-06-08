@@ -17,10 +17,10 @@ op = + | - | * | / | > | < | >= | <= | = | && | ||
 
 const = int | true | false
 
+value = const | const list
+
 expr =
-    | const
     | var
-    | const list
     | var[expr]
     | (expr)
     | expr op expr
@@ -62,11 +62,11 @@ $ make clean
 
 ## TODO
 
-- [ ] Include position in error message
-
 - [ ] Implement a function to perform small-step and big-step operational semantics
 
 - [ ] Implement verification system
+
+- [x] ~~Include position in error message~~
 
 - [x] ~~Add array to the grammar~~
 
