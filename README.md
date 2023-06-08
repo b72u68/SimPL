@@ -10,7 +10,9 @@ the homework are valid or not, which could easily be done by hand in 15 minutes.
 But why dot that when I could spend 24 hours to make a parser to automate it. It
 would be fun! (It wasn't).
 
-The BNF for SimPL is as followed:
+## Syntax
+
+The syntax of SimPL language is described by the BNF grammar below:
 
 ```
 op = + | - | * | / | > | < | >= | <= | = | && | ||
