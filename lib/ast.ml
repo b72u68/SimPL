@@ -36,7 +36,8 @@ type value =
     | VArr of const list
 
 type exp_ =
-    | EVal of value
+    | EConst of const
+    | EArr of const list
     | EVar of var
     | EArrIdx of var * exp
     | EBinop of bop * exp * exp

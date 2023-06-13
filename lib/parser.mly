@@ -38,14 +38,10 @@ const:
     | n=INT                                             { CInt n }
 ;
 
-value:
-    | c=const                                           { VConst c }
-    | LBRACKET; cs=const_list; RBRACKET                 { VArr cs }
-;
-
 expr:
-    | v=value                                                           { mk_exp (EVal v) $loc }
+    | c=const                                                           { mk_exp (EConst c) $loc }
     | v=VAR                                                             { mk_exp (EVar v) $loc }
+    | LBRACKET; cs=const_list; RBRACKET                                 { mk_exp (EArr cs) $loc }
     | v=VAR; LBRACKET; e=expr; RBRACKET                                 { mk_exp (EArrIdx (v, e)) $loc }
     | LPAREN; e1=expr; QUESTION; e2=expr; COLON; e3=expr; RPAREN        { mk_exp (EIf (e1, e2, e3)) $loc }
     | MAX; LPAREN; e1=expr; COMMA; e2=expr; RPAREN                      { mk_exp (EFun (FMax, [e1; e2])) $loc }

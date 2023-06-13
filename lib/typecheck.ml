@@ -1,6 +1,5 @@
 open Ast
-
-module VarMap = Map.Make(String)
+open Util
 
 type ctx = typ VarMap.t
 
@@ -15,7 +14,7 @@ let typ_mismatch_err t1 t2 =
     Printf.sprintf "expected type %s, got %s" (string_of_type t1) (string_of_type t2)
 
 let typ_err (spos, epos) msg =
-    let err_msg = Printf.sprintf "%s--%s: TypeError: %s"
+    let err_msg = Printf.sprintf "%s--%s: %s"
                     (string_of_pos spos)
                     (string_of_pos epos)
                     msg
@@ -33,15 +32,14 @@ let rec typecheck_const = function
     | CBool _ -> TBool
 
 and typecheck_var ctx v loc =
-    try
-        VarMap.find v ctx
-    with Not_found -> typ_err loc (Printf.sprintf "undefined variable \"%s\"" v)
+    if VarMap.mem v ctx then VarMap.find v ctx
+    else typ_err loc (Printf.sprintf "undefined variable \"%s\"" v)
 
 and typecheck_exp ctx exp =
     match exp.edesc with
+    | EConst c -> typecheck_const c
     | EVar v -> typecheck_var ctx v exp.eloc
-    | EVal (VConst c) -> typecheck_const c
-    | EVal (VArr arr) ->
+    | EArr arr ->
             if List.length arr = 0 then typ_err exp.eloc "empty array, expected at least 1 element in an array"
             else
                 let expected_type = typecheck_const (List.hd arr) in

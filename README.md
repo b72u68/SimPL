@@ -19,10 +19,10 @@ op = + | - | * | / | > | < | >= | <= | = | && | ||
 
 const = int | true | false
 
-value = const | const list
-
 expr =
+    | const
     | var
+    | const list
     | var[expr]
     | (expr)
     | expr op expr
@@ -38,6 +38,8 @@ stmt =
     | while expr { stmt }
     | stmt; stmt
     | skip
+
+value = const | const list
 ```
 
 ## Installation and Running
