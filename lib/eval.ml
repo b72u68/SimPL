@@ -74,16 +74,11 @@ let rec _arr_assign_idx arr idx value =
     | h :: t ->
         if idx = 0 then value :: t else h :: _arr_assign_idx arr (idx - 1) value
 
-let _get_const = function
-  | VConst c -> c
-  | _ -> raise (Failure "Expected constant, got array instead")
-
 let rec small_step (stmt, state) =
   let loc = stmt.sloc in
   match stmt.sdesc with
   | SAssign (l, e) -> (
       let value = _eval_expr (e, state) in
-      let c = _get_const value in
       match l.ldesc with
       | LHVar v -> (mk_stmt SSkip loc, StateMap.add v value state)
       | LHArr (v, e') -> (
@@ -91,11 +86,11 @@ let rec small_step (stmt, state) =
           match idx with
           | VConst (CInt n) -> (
               let varr = StateMap.find v state in
-              match varr with
-              | VArr arr ->
+              match (varr, value) with
+              | VArr arr, VConst c ->
                   let arr' = _arr_assign_idx arr n c in
                   (mk_stmt SSkip loc, StateMap.add v (VArr arr') state)
-              | _ -> raise (Failure "Expected expression of type array"))
+              | _ -> raise (Failure "Expected expression of type constant array"))
           | _ -> raise (Failure "Expected expression of type int")))
   | SIf (e, s1, s2) -> (
       let vcond = _eval_expr (e, state) in
