@@ -1,8 +1,5 @@
-all:
-	opam install dune
-
-build: lib/ast.ml lib/parser.mly lib/lexer.mll lib/dune bin/main.ml bin/dune
-	dune build
+all: lib/ast.ml lib/parser.mly lib/lexer.mll lib/eval.ml lib/dune bin/main.ml bin/dune
+	dune build @fmt
 
 utop: bin
 	dune utop bin

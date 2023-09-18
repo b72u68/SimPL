@@ -1,7 +1,7 @@
 (library
-  (name SimPL))
+ (name SimPL))
 
 (menhir
-  (modules parser))
+ (modules parser))
 
 (ocamllex lexer)
