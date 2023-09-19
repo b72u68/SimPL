@@ -1,7 +1,5 @@
 open Ast
-module VarMap = Map.Make (String)
-
-type ctx = typ VarMap.t
+open Types
 
 exception TypeError of string
 

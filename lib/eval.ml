@@ -1,7 +1,5 @@
 open Ast
-module StateMap = Map.Make (String)
-
-type state = value StateMap.t
+open Types
 
 let _eval_bexpr = function
   | op, VConst (CInt n1), VConst (CInt n2) -> (
@@ -30,9 +28,9 @@ let rec _eval_expr (expr, state) =
   match expr.edesc with
   | EConst c -> VConst c
   | EArr cs -> VArr cs
-  | EVar v -> StateMap.find v state
+  | EVar v -> VarMap.find v state
   | EArrIdx (v, e) -> (
-      let varr = StateMap.find v state in
+      let varr = VarMap.find v state in
       let vconst = _eval_expr (e, state) in
       match (varr, vconst) with
       | VArr arr, VConst (CInt n) -> VConst (List.nth arr n)
@@ -80,17 +78,18 @@ let rec small_step (stmt, state) =
   | SAssign (l, e) -> (
       let value = _eval_expr (e, state) in
       match l.ldesc with
-      | LHVar v -> (mk_stmt SSkip loc, StateMap.add v value state)
+      | LHVar v -> (mk_stmt SSkip loc, VarMap.add v value state)
       | LHArr (v, e') -> (
           let idx = _eval_expr (e', state) in
           match idx with
           | VConst (CInt n) -> (
-              let varr = StateMap.find v state in
+              let varr = VarMap.find v state in
               match (varr, value) with
               | VArr arr, VConst c ->
                   let arr' = _arr_assign_idx arr n c in
-                  (mk_stmt SSkip loc, StateMap.add v (VArr arr') state)
-              | _ -> raise (Failure "Expected expression of type constant array"))
+                  (mk_stmt SSkip loc, VarMap.add v (VArr arr') state)
+              | _ ->
+                  raise (Failure "Expected expression of type constant array"))
           | _ -> raise (Failure "Expected expression of type int")))
   | SIf (e, s1, s2) -> (
       let vcond = _eval_expr (e, state) in
@@ -108,3 +107,8 @@ let rec small_step (stmt, state) =
       | _ -> (mk_stmt (SBlock (s' :: rest)) loc, state))
   | SBlock [] -> (mk_stmt SSkip loc, state)
   | SSkip -> (mk_stmt SSkip loc, state)
+
+let rec big_step (stmt, state) =
+  match stmt.sdesc with
+  | SSkip -> (stmt, state)
+  | _ -> small_step (stmt, state) |> big_step
