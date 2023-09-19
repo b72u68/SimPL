@@ -1,5 +1,5 @@
 all: lib/ast.ml lib/parser.mly lib/lexer.mll lib/eval.ml lib/dune bin/main.ml bin/dune
-	dune build @fmt --auto-promote
+	dune build
 
 utop: bin
 	dune utop bin
