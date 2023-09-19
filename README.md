@@ -48,16 +48,13 @@ This project requires Ocaml package manager `opam`. Learn more about `opam` and
 install it [here](https://opam.ocaml.org/).
 
 ```
-# install dependencies
+# build executable for the parser
 $ make
 
-# build parser executable
-$ make build
-
-# run the parser
+# parse given file
 $ dune exec simpl <filename>
 
-# open project in top level
+# open libaries in top level
 $ make utop
 
 # remove/clean build
@@ -66,9 +63,9 @@ $ make clean
 
 ## TODO
 
-- [ ] Implement automating tests using `dune`
+- [ ] Implement automated testing using `dune`
 
-- [ ] Implement a function to perform small-step and big-step operational semantics
+- [ ] Implement small-step and big-step evaluation
 
 - [ ] Implement verification system
 
