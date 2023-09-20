@@ -13,15 +13,15 @@ let _eval_bexpr = function
       | Gt -> VConst (CBool (n1 > n2))
       | Eq -> VConst (CBool (n1 = n2))
       | Neq -> VConst (CBool (n1 <> n2))
-      | _ -> raise (Failure "Expected expression of type int"))
+      | _ -> failwith "Expected expression of type int")
   | op, VConst (CBool b1), VConst (CBool b2) -> (
       match op with
       | And -> VConst (CBool (b1 && b2))
       | Or -> VConst (CBool (b1 || b2))
       | Eq -> VConst (CBool (b1 = b2))
       | Neq -> VConst (CBool (b1 <> b2))
-      | _ -> raise (Failure "Expected expression of type bool"))
-  | _ -> raise (Failure "Type mismatch for binary operation")
+      | _ -> failwith "Expected expression of type bool")
+  | _ -> failwith "Type mismatch for binary operation"
 
 let rec _eval_expr (expr, state) =
   match expr.edesc with
@@ -33,7 +33,7 @@ let rec _eval_expr (expr, state) =
       let vconst = _eval_expr (e, state) in
       match (varr, vconst) with
       | VArr arr, VConst (CInt n) -> VConst (List.nth arr n)
-      | _ -> raise (Failure "Expected expression of type int"))
+      | _ -> failwith "Expected expression of type int")
   | EBinop (op, e1, e2) ->
       let v1 = _eval_expr (e1, state) in
       let v2 = _eval_expr (e2, state) in
@@ -43,31 +43,31 @@ let rec _eval_expr (expr, state) =
       match vcond with
       | VConst (CBool cond) ->
           if cond then _eval_expr (e1, state) else _eval_expr (e2, state)
-      | _ -> raise (Failure "Expected expression of type bool"))
+      | _ -> failwith "Expected expression of type bool")
   | EFun (FMax, [ e1; e2 ]) -> (
       let v1 = _eval_expr (e1, state) in
       let v2 = _eval_expr (e2, state) in
       match (v1, v2) with
       | VConst (CInt n1), VConst (CInt n2) -> VConst (CInt (max n1 n2))
-      | _ -> raise (Failure "Expected expression of type int"))
+      | _ -> failwith "Expected expression of type int")
   | EFun (FMin, [ e1; e2 ]) -> (
       let v1 = _eval_expr (e1, state) in
       let v2 = _eval_expr (e2, state) in
       match (v1, v2) with
       | VConst (CInt n1), VConst (CInt n2) -> VConst (CInt (min n1 n2))
-      | _ -> raise (Failure "Expected expression of type int"))
+      | _ -> failwith "Expected expression of type int")
   | EFun (FSize, [ e ]) -> (
       let varr = _eval_expr (e, state) in
       match varr with
       | VArr arr -> VConst (CInt (List.length arr))
-      | _ -> raise (Failure "Expected expression of type array"))
-  | _ -> raise (Failure "Invalid expression")
+      | _ -> failwith "Expected expression of type array")
+  | _ -> failwith "Invalid expression"
 
 let rec _arr_assign_idx arr idx value =
-  if idx < 0 then raise (Failure "Invalid index")
+  if idx < 0 then failwith "Invalid index"
   else
     match arr with
-    | [] -> raise (Failure "Index out of bound")
+    | [] -> failwith "Index out of bound"
     | h :: t ->
         if idx = 0 then value :: t else h :: _arr_assign_idx t (idx - 1) value
 
@@ -87,14 +87,13 @@ let rec small_step (stmt, state) =
               | VArr arr, VConst c ->
                   let arr' = _arr_assign_idx arr n c in
                   (mk_stmt SSkip loc, Types.VarMap.add v (VArr arr') state)
-              | _ ->
-                  raise (Failure "Expected expression of type constant array"))
-          | _ -> raise (Failure "Expected expression of type int")))
+              | _ -> failwith "Expected expression of type constant array")
+          | _ -> failwith "Expected expression of type int"))
   | SIf (e, s1, s2) -> (
       let vcond = _eval_expr (e, state) in
       match vcond with
       | VConst (CBool b) -> if b then (s1, state) else (s2, state)
-      | _ -> raise (Failure "Expected expression of type bool"))
+      | _ -> failwith "Expected expression of type bool")
   | SWhile (e, s) ->
       let t_s = mk_stmt (SBlock [ s; stmt ]) loc in
       let f_s = mk_stmt SSkip loc in
