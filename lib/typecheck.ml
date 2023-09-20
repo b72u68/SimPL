@@ -1,5 +1,4 @@
 open Ast
-open Types
 
 exception TypeError of string
 
@@ -28,7 +27,7 @@ let rec teq t1 t2 =
 let rec typecheck_const = function CInt _ -> TInt | CBool _ -> TBool
 
 and typecheck_var ctx v loc =
-  if VarMap.mem v ctx then VarMap.find v ctx
+  if Types.VarMap.mem v ctx then Types.VarMap.find v ctx
   else typ_err loc (Printf.sprintf "undefined variable \"%s\"" v)
 
 and typecheck_exp ctx exp =
@@ -139,11 +138,11 @@ and typecheck_stmt ctx s =
       match lh.ldesc with
       | LHVar v -> (
           try
-            let v_type = VarMap.find v ctx in
+            let v_type = Types.VarMap.find v ctx in
             if not (teq v_type e_type) then
               typ_err e.eloc (typ_mismatch_err v_type e_type)
             else ctx
-          with Not_found -> VarMap.add v e_type ctx)
+          with Not_found -> Types.VarMap.add v e_type ctx)
       | LHArr (v, e') -> (
           let v_type = typecheck_var ctx v lh.lloc in
           match v_type with
@@ -173,4 +172,4 @@ and typecheck_stmt ctx s =
   | SBlock ss -> List.fold_left typecheck_stmt ctx ss
   | SSkip -> ctx
 
-let typecheck = typecheck_stmt VarMap.empty
+let typecheck = typecheck_stmt Types.VarMap.empty

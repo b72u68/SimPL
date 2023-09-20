@@ -65,7 +65,6 @@ $ make clean
 
 - [ ] Implement automated testing using `dune`
 
-- [ ] Implement small-step and big-step evaluation
 
 - [ ] Implement verification system
 
@@ -74,3 +73,5 @@ $ make clean
 - [x] ~~Add array to the grammar~~
 
 - [x] ~~Typecheck?~~
+
+- [x] ~~Implement small-step and big-step evaluation~~

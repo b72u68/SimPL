@@ -1,6 +1,4 @@
-open SimPL.Parseutil
-open SimPL.Typecheck
-open SimPL.Print
+open SimPL
 
 let filename = Sys.argv.(1)
 
@@ -10,6 +8,7 @@ let _ =
     failwith
       (Printf.sprintf "Unsupported file type '%s'. Expected '.spl'." filetype)
   else
-    let prog = parse ~source:FILE filename in
-    let _ = typecheck prog in
-    print_endline (print_stmt prog)
+    let prog = Parseutil.parse ~source:FILE filename in
+    let _ = Typecheck.typecheck prog in
+    let _, state = Eval.big_step (prog, Types.VarMap.empty) in
+    print_endline (Print.print_state state)
