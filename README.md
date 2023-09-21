@@ -42,10 +42,7 @@ stmt =
 value = const | const list
 ```
 
-## Installation and Running
-
-This project requires Ocaml package manager `opam`. Learn more about `opam` and
-install it [here](https://opam.ocaml.org/).
+## Compiling and Running
 
 ```
 # build executable for the parser
@@ -64,7 +61,6 @@ $ make clean
 ## TODO
 
 - [ ] Implement automated testing using `dune`
-
 
 - [ ] Implement verification system
 
